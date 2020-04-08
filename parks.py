@@ -69,9 +69,10 @@ def loadfile(fileName):
 
 def main():
     startTime = time.time()
-    board = loadfile("park1")
+    board = loadfile("park14")
     blankAnswer = ParkAnswer(board)
-    threading.Thread(target=getActions, args=((0, blankAnswer),)).start()
+    # threading.Thread(target=getActions, args=((0, blankAnswer),)).start()
+    getActions((0, blankAnswer))
     actionsExpanded = 1
     answer = None
     while True:
@@ -80,7 +81,8 @@ def main():
         if testAnswer[1].isGoal():
             answer = testAnswer[1].getAnswer()
             break
-        threading.Thread(target=getActions, args=(testAnswer,)).start()
+        # threading.Thread(target=getActions, args=(testAnswer,)).start()
+        getActions(testAnswer)
     print(actionsExpanded, time.time()-startTime)
     print(answer)
 
