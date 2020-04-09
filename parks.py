@@ -7,7 +7,7 @@ import copy
 availableActions = PriorityQueue()
 
 
-class ParkAnswer:
+class ParkAnswer(object):
     def __init__(self, board):
         self.rowsAvailable = list(range(0, len(board)))
         self.columnsAvailable = list(range(0, len(board[0])-1)) #-1 to account for \n character
@@ -42,10 +42,11 @@ class ParkAnswer:
         return cpy
 
     def __lt__(self, other):
-        return True
+        return heuristic(self) < heuristic(other)
 
 def heuristic(action):
-    return 0
+    return 0 #2913339 67.85499978065491
+    # return len(action.colorsAvailable)
 
 
 def getActions(partialAnswer):
@@ -54,7 +55,7 @@ def getActions(partialAnswer):
             if partialAnswer[1].board[i][j] in partialAnswer[1].colorsAvailable:
                 newAction = copy.copy(partialAnswer[1])
                 newAction.placeTree(i, j)
-                availableActions.put((heuristic(newAction) + partialAnswer[0] + 1, newAction))
+                availableActions.put((0, newAction))
 
 
 def loadfile(fileName):
@@ -69,7 +70,7 @@ def loadfile(fileName):
 
 def main():
     startTime = time.time()
-    board = loadfile("park14")
+    board = loadfile("park1")
     blankAnswer = ParkAnswer(board)
     # threading.Thread(target=getActions, args=((0, blankAnswer),)).start()
     getActions((0, blankAnswer))
