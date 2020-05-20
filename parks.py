@@ -43,6 +43,19 @@ class ParkSolver(Solver):
 		self.treesPerColor, self.board = super().loadFile(fileName, 1)
 		self.blankAnswer = ParkAnswer(self.treesPerColor, self.board)
 
+	def heuristic(self, partialAnswer):
+		thingsUnsolved = len(self.board) * 3 # same number of rows, columns, and colors for square board
+		for color in partialAnswer.colorsAvailable:
+			if partialAnswer.colorsAvailable[color] == 0:
+				thingsUnsolved -= 1
+		for i in partialAnswer.rowsAvailable:
+			if partialAnswer.rowsAvailable[i] == 0:
+				thingsUnsolved -= 1
+			if partialAnswer.columnsAvailable[i] == 0:
+				thingsUnsolved -= 1
+		return thingsUnsolved
+		return False
+
 	def getActions(self, partialAnswer):
 		availableActions = []
 		for i in range(0, len(self.board)):
