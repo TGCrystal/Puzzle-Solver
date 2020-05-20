@@ -1,5 +1,6 @@
-import time
 import copy
+import heapq
+import time
 
 class Answer:
 	def getAnswer(self):
@@ -7,6 +8,9 @@ class Answer:
 
 	def __copy__(self):
 		pass
+
+	def __lt__(self, other): # Heuristic tiebreaker
+		return False
 
 
 class Solver:
@@ -22,7 +26,10 @@ class Solver:
 	def isGoal(self, partialAnswer):
 		pass
 
-	def depthFirstSolve(self):
+	def heuristic(self, partialAnswer):
+		pass
+
+	def depthFirstSolve(self, sortAnswer=False):
 		possibleActions = self.getActions(self.blankAnswer) # possibleActions will be a list
 		answer = None
 		actionsExpanded = 0
@@ -41,10 +48,12 @@ class Solver:
 		if answer is None:
 			print("No answer found")
 		else:
+			if sortAnswer:
+				answer.sort()
 			print(answer)
 			print("Found in {} seconds with {} actions checked".format(endTime-startTime, actionsExpanded))
 
-	def breadthFirstSolve(self):
+	def breadthFirstSolve(self, sortAnswer=False):
 		possibleActions = self.getActions(self.blankAnswer) # possibleActions will be a list
 		answer = None
 		actionsExpanded = 0
@@ -63,10 +72,47 @@ class Solver:
 		if answer is None:
 			print("No answer found")
 		else:
+			if sortAnswer:
+				answer.sort()
 			print(answer)
 			print("Found in {} seconds with {} actions checked".format(endTime-startTime, actionsExpanded))
+
+	def heuristicSolve(self, sortAnswer=False):
+		possibleActions = self.getActions(self.blankAnswer) # possibleActions will be a list
+		answer = None
+		actionsExpanded = 0
+		startTime = time.time()
+		endTime = startTime
+
+		possibleActionHeap = []
+		for action in possibleActions:
+			actionTuple = (self.heuristic(action), action)
+			heapq.heappush(possibleActionHeap, actionTuple)
+
+		while len(possibleActionHeap) > 0:
+			testAnswer = heapq.heappop(possibleActionHeap)[1]
+			actionsExpanded += 1
+			if self.isGoal(testAnswer):
+				answer = testAnswer.getAnswer()
+				endTime = time.time()
+				break
+			possibleActions = self.getActions(testAnswer)
+			for action in possibleActions:
+				actionTuple = (self.heuristic(action), action)
+				heapq.heappush(possibleActionHeap, actionTuple)
+
+		if answer is None:
+			print("No answer found")
+		else:
+			if sortAnswer:
+				answer.sort()
+			print(answer)
+			print("Found in {} seconds with {} actions checked".format(endTime-startTime, actionsExpanded))
+
 	def allSolves(self):
 		print("Depth First:")
-		self.depthFirstSolve()
+		self.depthFirstSolve(sortAnswer=True)
 		print("\nBreadth First:")
-		self.breadthFirstSolve()
+		self.breadthFirstSolve(sortAnswer=True)
+		print("\nHeuristic:")
+		self.heuristicSolve(sortAnswer=True)
