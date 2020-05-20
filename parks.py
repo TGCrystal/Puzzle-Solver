@@ -1,91 +1,113 @@
 import time
-import threading
-from queue import PriorityQueue
 import copy
 
 
-availableActions = PriorityQueue()
+class Answer:
+    def getAnswer(self):
+        pass
+
+    def __copy__(self):
+        pass
 
 
-class ParkAnswer(object):
-    def __init__(self, board):
-        self.rowsAvailable = list(range(0, len(board)))
-        self.columnsAvailable = list(range(0, len(board[0])-1)) #-1 to account for \n character
-        self.colorsAvailable = set()
+class ParkAnswer(Answer):
+    def __init__(self, treesPerColor='1', board=None):
+        if board is None: #used for copy function
+            return
+        treesPerColor = int(treesPerColor)
         self.placedTrees = []
-        self.board = board
-        # print(self.rowsAvailable, self.columnsAvailable)
+
+        self.rowsAvailable = dict()
+        self.columnsAvailable = dict()
+        for i in range(0, len(board)): # Boards are square so no need for second loop
+            self.rowsAvailable[i] = treesPerColor
+            self.columnsAvailable[i] = treesPerColor
+
+        self.colorsAvailable = dict()
         for i in self.rowsAvailable:
             for j in self.columnsAvailable:
-                # print(i, j)
-                self.colorsAvailable.add(board[i][j])
+                self.colorsAvailable[board[i][j]] = treesPerColor
 
-    def placeTree(self, row, column):
-        self.rowsAvailable.remove(row)
-        self.columnsAvailable.remove(column)
-        self.colorsAvailable.remove(self.board[row][column])
+    def placeTree(self, row, column, color):
+        self.rowsAvailable[row] -= 1
+        self.columnsAvailable[column] -= 1
+        self.colorsAvailable[color] -= 1
         self.placedTrees.append((row, column))
-
-    def isGoal(self):
-        return len(self.colorsAvailable) == 0
 
     def getAnswer(self):
         return self.placedTrees
 
     def __copy__(self):
-        cpy = type(self)(self.board)
+        cpy = type(self)()
         cpy.rowsAvailable = self.rowsAvailable.copy()
         cpy.columnsAvailable = self.columnsAvailable.copy()
         cpy.colorsAvailable = self.colorsAvailable.copy()
         cpy.placedTrees = self.placedTrees.copy()
-        cpy.board = self.board
         return cpy
 
-    def __lt__(self, other):
-        return heuristic(self) < heuristic(other)
 
-def heuristic(action):
-    return 0 #2913339 67.85499978065491
-    # return len(action.colorsAvailable)
+class Solver:
+    def loadFile(self, fileName, numInputSplits):
+        with open(fileName, 'r') as file:
+            rawInput = file.read().split('\n', numInputSplits)
+            rawInput[numInputSplits] = rawInput[numInputSplits].split('\n')
+        return rawInput
+
+    def getActions(self, partialAnswer):
+        pass
+
+    def isGoal(self, partialAnswer):
+        pass
+
+    def depthFirstSolve(self):
+        possibleActions = self.getActions(self.blankAnswer) # possibleActions will be a list
+        answer = None
+        actionsExpanded = 0
+        startTime = time.time()
+        endTime = startTime
+
+        while len(possibleActions) > 0:
+            testAnswer = possibleActions.pop()
+            actionsExpanded += 1
+            if self.isGoal(testAnswer):
+                answer = testAnswer.getAnswer()
+                endTime = time.time()
+                break
+            possibleActions += self.getActions(testAnswer)
+
+        if answer is None:
+            print("No answer found")
+        else:
+            print(answer)
+            print("Found in {} seconds with {} actions checked".format(endTime-startTime, actionsExpanded))
 
 
-def getActions(partialAnswer):
-    for i in partialAnswer[1].rowsAvailable:
-        for j in partialAnswer[1].columnsAvailable:
-            if partialAnswer[1].board[i][j] in partialAnswer[1].colorsAvailable:
-                newAction = copy.copy(partialAnswer[1])
-                newAction.placeTree(i, j)
-                availableActions.put((0, newAction))
+class ParkSolver(Solver):
+    def __init__(self, fileName):
+        self.treesPerColor, self.board = super().loadFile(fileName, 1)
+        self.blankAnswer = ParkAnswer(self.treesPerColor, self.board)
 
+    def getActions(self, partialAnswer):
+        availableActions = []
+        for i in range(0, len(self.board)):
+            for j in range(0, len(self.board[i])):
+                if partialAnswer.rowsAvailable[i] > 0 and partialAnswer.columnsAvailable[j] > 0:
+                    if partialAnswer.colorsAvailable[self.board[i][j]] > 0:
+                        newAction = copy.copy(partialAnswer)
+                        newAction.placeTree(i, j, self.board[i][j])
+                        availableActions.append(newAction)
+        return availableActions
 
-def loadfile(fileName):
-    board = []
-    with open(fileName, 'r') as file:
-        row = file.readline()
-        while row:
-            board.append(list(row))
-            row = file.readline()
-    return board
+    def isGoal(self, partialAnswer):
+        for color in partialAnswer.colorsAvailable:
+            if partialAnswer.colorsAvailable[color] > 0:
+                return False
+        return True
 
 
 def main():
-    startTime = time.time()
-    board = loadfile("park1")
-    blankAnswer = ParkAnswer(board)
-    # threading.Thread(target=getActions, args=((0, blankAnswer),)).start()
-    getActions((0, blankAnswer))
-    actionsExpanded = 1
-    answer = None
-    while True:
-        testAnswer = availableActions.get()
-        actionsExpanded += 1
-        if testAnswer[1].isGoal():
-            answer = testAnswer[1].getAnswer()
-            break
-        # threading.Thread(target=getActions, args=(testAnswer,)).start()
-        getActions(testAnswer)
-    print(actionsExpanded, time.time()-startTime)
-    print(answer)
+    solver = ParkSolver("puzzles/parks/1")
+    solver.depthFirstSolve()
 
 
 if __name__ == "__main__":
