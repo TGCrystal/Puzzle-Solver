@@ -43,3 +43,30 @@ class Solver:
 		else:
 			print(answer)
 			print("Found in {} seconds with {} actions checked".format(endTime-startTime, actionsExpanded))
+
+	def breadthFirstSolve(self):
+		possibleActions = self.getActions(self.blankAnswer) # possibleActions will be a list
+		answer = None
+		actionsExpanded = 0
+		startTime = time.time()
+		endTime = startTime
+
+		while len(possibleActions) > 0:
+			testAnswer = possibleActions.pop(0)
+			actionsExpanded += 1
+			if self.isGoal(testAnswer):
+				answer = testAnswer.getAnswer()
+				endTime = time.time()
+				break
+			possibleActions += self.getActions(testAnswer)
+
+		if answer is None:
+			print("No answer found")
+		else:
+			print(answer)
+			print("Found in {} seconds with {} actions checked".format(endTime-startTime, actionsExpanded))
+	def allSolves(self):
+		print("Depth First:")
+		self.depthFirstSolve()
+		print("\nBreadth First:")
+		self.breadthFirstSolve()
