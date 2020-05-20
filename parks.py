@@ -47,12 +47,17 @@ class ParkSolver(Solver):
 		availableActions = []
 		for i in range(0, len(self.board)):
 			for j in range(0, len(self.board[i])):
-				if partialAnswer.rowsAvailable[i] > 0 and partialAnswer.columnsAvailable[j] > 0:
-					if partialAnswer.colorsAvailable[self.board[i][j]] > 0:
-						newAction = copy.copy(partialAnswer)
-						newAction.placeTree(i, j, self.board[i][j])
-						availableActions.append(newAction)
-		# availableActions.sort(key = self.availableActionPrioritization)
+				if partialAnswer.rowsAvailable[i] == 0 or partialAnswer.columnsAvailable[j] == 0 or partialAnswer.colorsAvailable[self.board[i][j]] == 0:
+					continue
+				neighborExists = False
+				for treeRow, treeColumn in partialAnswer.placedTrees:
+					if abs(treeRow - i) <= 1 and abs(treeColumn-j) <= 1:
+						neighborExists = True
+						break
+				if not neighborExists:
+					newAction = copy.copy(partialAnswer)
+					newAction.placeTree(i, j, self.board[i][j])
+					availableActions.append(newAction)
 		return availableActions
 
 	def isGoal(self, partialAnswer):
@@ -64,7 +69,7 @@ class ParkSolver(Solver):
 
 def main():
 	solver = ParkSolver("puzzles/parks/1")
-	solver.depthFirstSolve()
+	solver.allSolves()
 
 
 if __name__ == "__main__":
