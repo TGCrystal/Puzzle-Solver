@@ -116,10 +116,16 @@ class Solver:
 			print(answer)
 			print("Found in {} seconds with {} actions checked".format(endTime-startTime, actionsExpanded))
 
-	def allSolve(self):
-		print("Depth First:")
-		self.depthFirstSolve(sortAnswer=True)
-		print("\nBreadth First:")
-		self.breadthFirstSolve(sortAnswer=True)
-		print("\nHeuristic:")
-		self.heuristicSolve(sortAnswer=True)
+	def allSolve(self, depth=True, breadth=True, heuristic=True):
+		if depth:
+			print("Depth First:")
+			self.depthFirstSolve(sortAnswer=True)
+			print()
+		if breadth:
+			print("Breadth First:")
+			self.breadthFirstSolve(sortAnswer=True)
+			print()
+		if heuristic:
+			print("Heuristic:")
+			self.heuristicSolve(sortAnswer=True)
+			print()
