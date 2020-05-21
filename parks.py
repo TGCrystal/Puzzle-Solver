@@ -60,7 +60,7 @@ class ParkSolver(Solver):
 				thingsUnsolved -= 1
 			if partialAnswer.columnsAvailable[i] == 0:
 				thingsUnsolved -= 1
-		return thingsUnsolved
+		return thingsUnsolved * len(partialAnswer.placedTrees)
 
 	def colorHeuristic(self, partialAnswer):
 		heuristicValue = 0
@@ -71,7 +71,7 @@ class ParkSolver(Solver):
 		return heuristicValue / len(partialAnswer.placedTrees)
 
 	def heuristic(self, partialAnswer):
-		return self.unsolvedHeuristic(partialAnswer) - self.colorHeuristic(partialAnswer)
+		return self.unsolvedHeuristic(partialAnswer) # Works better than color heuristic
 		# return False
 
 	def getActions(self, partialAnswer):
