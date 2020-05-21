@@ -42,8 +42,15 @@ class ParkSolver(Solver):
 	def __init__(self, fileName):
 		self.treesPerColor, self.board = super().loadFile(fileName, 1)
 		self.blankAnswer = ParkAnswer(self.treesPerColor, self.board)
+		self.colorFrequencies = dict()
+		for row in self.board:
+			for color in row:
+				if color in self.colorFrequencies:
+					self.colorFrequencies[color] += 1
+				else:
+					self.colorFrequencies[color] = 1
 
-	def heuristic(self, partialAnswer):
+	def unsolvedHeuristic(self, partialAnswer):
 		thingsUnsolved = len(self.board) * 3 # same number of rows, columns, and colors for square board
 		for color in partialAnswer.colorsAvailable:
 			if partialAnswer.colorsAvailable[color] == 0:
@@ -54,7 +61,18 @@ class ParkSolver(Solver):
 			if partialAnswer.columnsAvailable[i] == 0:
 				thingsUnsolved -= 1
 		return thingsUnsolved
-		return False
+
+	def colorHeuristic(self, partialAnswer):
+		heuristicValue = 0
+		if len(partialAnswer.placedTrees) == 0:
+			return 0
+		for color in self.colorFrequencies:
+			heuristicValue += self.colorFrequencies[color] * partialAnswer.colorsAvailable[color]
+		return heuristicValue / len(partialAnswer.placedTrees)
+
+	def heuristic(self, partialAnswer):
+		return self.unsolvedHeuristic(partialAnswer) - self.colorHeuristic(partialAnswer)
+		# return False
 
 	def getActions(self, partialAnswer):
 		availableActions = []
@@ -81,8 +99,8 @@ class ParkSolver(Solver):
 
 
 def main():
-	solver = ParkSolver("puzzles/parks/1")
-	solver.allSolves()
+	solver = ParkSolver("puzzles/parks/41")
+	solver.heuristicSolve()
 
 
 if __name__ == "__main__":
