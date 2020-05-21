@@ -20,17 +20,24 @@ class Solver:
 			rawInput[numInputSplits] = rawInput[numInputSplits].split('\n')
 		return rawInput
 
+	# uses blankAnswer to generate self.baseAnswer that has required places already filled in
+	# should be called at the end of __init__
+	def generateBaseAnswer(self, blankAnswer):
+		pass
+
 	def getActions(self, partialAnswer):
 		pass
 
+	# checks if the given partialAnswer is a final answer
 	def isGoal(self, partialAnswer):
 		pass
 
+	# returns a number to be used in the priority queue for 
 	def heuristic(self, partialAnswer):
 		pass
 
 	def depthFirstSolve(self, sortAnswer=False):
-		possibleActions = self.getActions(self.blankAnswer) # possibleActions will be a list
+		possibleActions = self.getActions(self.baseAnswer) # possibleActions will be a list
 		answer = None
 		actionsExpanded = 0
 		startTime = time.time()
@@ -54,7 +61,7 @@ class Solver:
 			print("Found in {} seconds with {} actions checked".format(endTime-startTime, actionsExpanded))
 
 	def breadthFirstSolve(self, sortAnswer=False):
-		possibleActions = self.getActions(self.blankAnswer) # possibleActions will be a list
+		possibleActions = self.getActions(self.baseAnswer) # possibleActions will be a list
 		answer = None
 		actionsExpanded = 0
 		startTime = time.time()
@@ -78,7 +85,7 @@ class Solver:
 			print("Found in {} seconds with {} actions checked".format(endTime-startTime, actionsExpanded))
 
 	def heuristicSolve(self, sortAnswer=False):
-		possibleActions = self.getActions(self.blankAnswer) # possibleActions will be a list
+		possibleActions = self.getActions(self.baseAnswer) # possibleActions will be a list
 		answer = None
 		actionsExpanded = 0
 		startTime = time.time()
@@ -109,7 +116,7 @@ class Solver:
 			print(answer)
 			print("Found in {} seconds with {} actions checked".format(endTime-startTime, actionsExpanded))
 
-	def allSolves(self):
+	def allSolve(self):
 		print("Depth First:")
 		self.depthFirstSolve(sortAnswer=True)
 		print("\nBreadth First:")

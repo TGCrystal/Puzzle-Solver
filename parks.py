@@ -41,7 +41,7 @@ class ParkSolver(Solver):
 	def __init__(self, fileName):
 		self.treesPerColor, self.board = super().loadFile(fileName, 1)
 		self.treesPerColor = int(self.treesPerColor)
-		self.blankAnswer = ParkAnswer(self.treesPerColor, self.board)
+		blankAnswer = ParkAnswer(self.treesPerColor, self.board)
 		self.colorFrequencies = dict()
 		for row in self.board:
 			for color in row:
@@ -49,6 +49,9 @@ class ParkSolver(Solver):
 					self.colorFrequencies[color] += 1
 				else:
 					self.colorFrequencies[color] = 1
+		self.generateBaseAnswer(blankAnswer)
+
+	def generateBaseAnswer(self, blankAnswer):
 		if self.treesPerColor == 1:
 			for color in self.colorFrequencies:
 				if self.colorFrequencies[color] != 1:
@@ -57,35 +60,36 @@ class ParkSolver(Solver):
 				for i in range(len(self.board)):
 					for j in range(len(self.board)):
 						if self.board[i][j] == color:
-							self.blankAnswer.placeTree(i, j, color)
+							blankAnswer.placeTree(i, j, color)
 							willBreak = True
 							break
 					if willBreak:
 						break
 		elif self.treesPerColor == 2: # improve the base starting answer for some larger puzzles
 			for color in self.colorFrequencies:
-				if self.colorFrequencies[color] != 3 or self.blankAnswer.colorsAvailable[color] == 0:
+				if self.colorFrequencies[color] != 3 or blankAnswer.colorsAvailable[color] == 0:
 					continue
 				for i in range(len(self.board)):
 					for j in range(len(self.board)):
 						if self.board[i][j] != color:
 							continue
 						if ( i<len(self.board)-1 and j<len(self.board)-1 ) and ( self.board[i+1][j]==color and self.board[i][j+1]==color ):
-							self.blankAnswer.placeTree(i+1, j, color)
-							self.blankAnswer.placeTree(i, j+1, color)
+							blankAnswer.placeTree(i+1, j, color)
+							blankAnswer.placeTree(i, j+1, color)
 							break
-						self.blankAnswer.placeTree(i, j, color)
+						blankAnswer.placeTree(i, j, color)
 						if i < len(self.board) - 2 and self.board[i+2][j] == color:
-							self.blankAnswer.placeTree(i+2, j, color)
+							blankAnswer.placeTree(i+2, j, color)
 						elif j < len(self.board) - 2 and self.board[i][j+2] == color:
-							self.blankAnswer.placeTree(i, j+2, color)
+							blankAnswer.placeTree(i, j+2, color)
 						elif ( i<len(self.board)-1 and j>0 ) and self.board[i+1][j-1] == color:
-							self.blankAnswer.placeTree(i+1, j-1, color)
+							blankAnswer.placeTree(i+1, j-1, color)
 						elif ( i<len(self.board)-1 and j<len(self.board)-1 ) and self.board[i+1][j+1] == color:
-							self.blankAnswer.placeTree(i+1, j+1, color)
+							blankAnswer.placeTree(i+1, j+1, color)
 						else:
 							print("ERROR: Parks: blankAnswer optimization found potential for optimization, but couldn't find exact position")
 						break
+		self.baseAnswer = blankAnswer
 
 	def unsolvedHeuristic(self, partialAnswer):
 		thingsUnsolved = len(self.board) * 3 # same number of rows, columns, and colors for square board
@@ -136,8 +140,8 @@ class ParkSolver(Solver):
 
 
 def main():
-	solver = ParkSolver("puzzles/parks/1")
-	solver.allSolves()
+	solver = ParkSolver("puzzles/parks/14")
+	solver.allSolve()
 
 
 if __name__ == "__main__":
