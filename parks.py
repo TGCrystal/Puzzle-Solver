@@ -50,6 +50,44 @@ class ParkSolver(Solver):
 				else:
 					self.colorFrequencies[color] = 1
 
+		if self.treesPerColor == 1:
+			for color in self.colorFrequencies:
+				if self.colorFrequencies[color] != 1:
+					continue
+				willBreak = False
+				for i in range(len(self.board)):
+					for j in range(len(self.board)):
+						if self.board[i][j] == color:
+							self.blankAnswer.placeTree(i, j, color)
+							willBreak = True
+							break
+					if willBreak:
+						break
+		elif self.treesPerColor == 2: # improve the base starting answer for some larger puzzles
+			for color in self.colorFrequencies:
+				if self.colorFrequencies[color] != 3 or self.blankAnswer.colorsAvailable[color] == 0:
+					continue
+				for i in range(len(self.board)):
+					for j in range(len(self.board)):
+						if self.board[i][j] != color:
+							continue
+						if ( i<len(self.board)-1 and j<len(self.board)-1 ) and ( self.board[i+1][j]==color and self.board[i][j+1]==color ):
+							self.blankAnswer.placeTree(i+1, j, color)
+							self.blankAnswer.placeTree(i, j+1, color)
+							break
+						self.blankAnswer.placeTree(i, j, color)
+						if i < len(self.board) - 2 and self.board[i+2][j] == color:
+							self.blankAnswer.placeTree(i+2, j, color)
+						elif j < len(self.board) - 2 and self.board[i][j+2] == color:
+							self.blankAnswer.placeTree(i, j+2, color)
+						elif ( i<len(self.board)-1 and j>0 ) and self.board[i+1][j-1] == color:
+							self.blankAnswer.placeTree(i+1, j-1, color)
+						elif ( i<len(self.board)-1 and j<len(self.board)-1 ) and self.board[i+1][j+1] == color:
+							self.blankAnswer.placeTree(i+1, j+1, color)
+						else:
+							print("ERROR: Parks: blankAnswer optimization found potential for optimization, but couldn't find exact position")
+						break
+
 	def unsolvedHeuristic(self, partialAnswer):
 		thingsUnsolved = len(self.board) * 3 # same number of rows, columns, and colors for square board
 		for color in partialAnswer.colorsAvailable:
