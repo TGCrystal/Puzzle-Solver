@@ -3,10 +3,9 @@ import copy
 
 
 class ParkAnswer(Answer):
-	def __init__(self, treesPerColor='1', board=None):
+	def __init__(self, treesPerColor=1, board=None):
 		if board is None: #used for copy function
 			return
-		treesPerColor = int(treesPerColor)
 		self.placedTrees = []
 
 		self.rowsAvailable = dict()
@@ -41,6 +40,7 @@ class ParkAnswer(Answer):
 class ParkSolver(Solver):
 	def __init__(self, fileName):
 		self.treesPerColor, self.board = super().loadFile(fileName, 1)
+		self.treesPerColor = int(self.treesPerColor)
 		self.blankAnswer = ParkAnswer(self.treesPerColor, self.board)
 		self.colorFrequencies = dict()
 		for row in self.board:
@@ -49,7 +49,6 @@ class ParkSolver(Solver):
 					self.colorFrequencies[color] += 1
 				else:
 					self.colorFrequencies[color] = 1
-
 		if self.treesPerColor == 1:
 			for color in self.colorFrequencies:
 				if self.colorFrequencies[color] != 1:
@@ -137,8 +136,8 @@ class ParkSolver(Solver):
 
 
 def main():
-	solver = ParkSolver("puzzles/parks/41")
-	solver.heuristicSolve()
+	solver = ParkSolver("puzzles/parks/1")
+	solver.allSolves()
 
 
 if __name__ == "__main__":
