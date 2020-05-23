@@ -96,7 +96,7 @@ class ParkSolver(Solver):
 		for color in partialAnswer.colorsAvailable:
 			if partialAnswer.colorsAvailable[color] == 0:
 				thingsUnsolved -= 1
-		for i in partialAnswer.rowsAvailable:
+		for i in range(len(self.board)):
 			if partialAnswer.rowsAvailable[i] == 0:
 				thingsUnsolved -= 1
 			if partialAnswer.columnsAvailable[i] == 0:
