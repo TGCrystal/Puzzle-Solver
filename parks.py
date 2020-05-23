@@ -8,15 +8,15 @@ class ParkAnswer(Answer):
 			return
 		self.placedTrees = []
 
-		self.rowsAvailable = dict()
-		self.columnsAvailable = dict()
-		for i in range(0, len(board)): # Boards are square so no need for second loop
-			self.rowsAvailable[i] = treesPerColor
-			self.columnsAvailable[i] = treesPerColor
+		self.rowsAvailable = []
+		self.columnsAvailable = []
+		for i in range(len(board)): # Boards are square so no need for second loop
+			self.rowsAvailable.append(treesPerColor)
+			self.columnsAvailable.append(treesPerColor)
 
 		self.colorsAvailable = dict()
-		for i in self.rowsAvailable:
-			for j in self.columnsAvailable:
+		for i in range(len(board)):
+			for j in range(len(board[i])):
 				self.colorsAvailable[board[i][j]] = treesPerColor
 
 	def placeTree(self, row, column, color):
@@ -117,8 +117,8 @@ class ParkSolver(Solver):
 
 	def getActions(self, partialAnswer):
 		availableActions = []
-		for i in range(0, len(self.board)):
-			for j in range(0, len(self.board[i])):
+		for i in range(len(self.board)):
+			for j in range(len(self.board[i])):
 				if partialAnswer.rowsAvailable[i] == 0 or partialAnswer.columnsAvailable[j] == 0 or partialAnswer.colorsAvailable[self.board[i][j]] == 0:
 					continue
 				neighborExists = False
