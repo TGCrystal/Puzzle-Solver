@@ -32,7 +32,8 @@ class Solver:
 	def isGoal(self, partialAnswer):
 		pass
 
-	# returns a number to be used in the priority queue for 
+	# returns a number to be used in the priority queue for ordering
+	# return float('inf') to indicate a partialAnswer to throw out that shouldn't be used
 	def heuristic(self, partialAnswer):
 		pass
 
@@ -94,7 +95,8 @@ class Solver:
 		possibleActionHeap = []
 		for action in possibleActions:
 			actionTuple = (self.heuristic(action), action)
-			heapq.heappush(possibleActionHeap, actionTuple)
+			if actionTuple[0] != float('inf'):
+				heapq.heappush(possibleActionHeap, actionTuple)
 
 		while len(possibleActionHeap) > 0:
 			testAnswer = heapq.heappop(possibleActionHeap)[1]
@@ -106,7 +108,8 @@ class Solver:
 			possibleActions = self.getActions(testAnswer)
 			for action in possibleActions:
 				actionTuple = (self.heuristic(action), action)
-				heapq.heappush(possibleActionHeap, actionTuple)
+				if actionTuple[0] != float('inf'):
+					heapq.heappush(possibleActionHeap, actionTuple)
 
 		if answer is None:
 			print("No answer found")
