@@ -113,18 +113,36 @@ class ParkSolver(Solver):
 		return heuristicValue / len(partialAnswer.placedTrees)
 
 	def recentHeuristic(self, partialAnswer):
+		newColorFrequencies = copy.copy(self.colorFrequencies)
+		invalidPlacements = set()
+		for i in range(len(self.board)):
+			for j in range(len(self.board[i])):
+				if partialAnswer.rowsAvailable[i] == 0 or partialAnswer.columnsAvailable[j] == 0:
+					invalidPlacements.add((i, j))
+					newColorFrequencies[self.board[i][j]] -= 1
+		for tree in partialAnswer.placedTrees[:-1]:
+			for i in range(tree[0]-1, tree[0]+2):
+				if i < 0 or i >= len(self.board):
+					continue
+				for j in range(tree[1]-1, tree[1]+2):
+					if j < 0 or j >= len(self.board[i]):
+						continue
+					if (i, j) not in invalidPlacements:
+						invalidPlacements.add((i, j))
+						newColorFrequencies[self.board[i][j]] -= 1
+
 		mostRecentRow, mostRecentColumn = partialAnswer.placedTrees[-1]
 		mostRecentColor = self.board[mostRecentRow][mostRecentColumn]
 		minFrequency = None
-		for color in self.colorFrequencies: #sorted in __init__
-			if color == mostRecentColor and (minFrequency is None or self.colorFrequencies[color] == minFrequency):
-				ret = self.colorFrequencies[color] + (len(partialAnswer.placedTrees) * len(self.board) * len(self.board))
+		for color in newColorFrequencies: #sorted in __init__
+			if color == mostRecentColor and (minFrequency is None or newColorFrequencies[color] == minFrequency):
+				ret = newColorFrequencies[color] + len(partialAnswer.placedTrees)
 				ret *= -1
 				return ret
 			if partialAnswer.colorsAvailable[color] == self.treesPerColor:
 				if minFrequency is None:
-					minFrequency = self.colorFrequencies[color]
-				if minFrequency != self.colorFrequencies[color]:
+					minFrequency = newColorFrequencies[color]
+				if minFrequency != newColorFrequencies[color]:
 					return float('inf')
 		return float('inf')
 
@@ -160,6 +178,7 @@ class ParkSolver(Solver):
 def main():
 	solver = ParkSolver("puzzles/parks/14")
 	solver.allSolve(breadth=False, depth=False)
+	# solver.allSolve(breadth=False, heuristic=False)
 
 
 if __name__ == "__main__":
