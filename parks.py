@@ -42,13 +42,14 @@ class ParkSolver(Solver):
 		self.treesPerColor, self.board = super().loadFile(fileName, 1)
 		self.treesPerColor = int(self.treesPerColor)
 		blankAnswer = ParkAnswer(self.treesPerColor, self.board)
-		self.colorFrequencies = dict()
+		unsortedColorFrequencies = dict()
 		for row in self.board:
 			for color in row:
-				if color in self.colorFrequencies:
-					self.colorFrequencies[color] += 1
+				if color in unsortedColorFrequencies:
+					unsortedColorFrequencies[color] += 1
 				else:
-					self.colorFrequencies[color] = 1
+					unsortedColorFrequencies[color] = 1
+		self.colorFrequencies = {k: v for k, v in sorted(unsortedColorFrequencies.items(), key=lambda x: x[1])}
 		self.generateBaseAnswer(blankAnswer)
 
 	def generateBaseAnswer(self, blankAnswer):
@@ -111,8 +112,25 @@ class ParkSolver(Solver):
 			heuristicValue += self.colorFrequencies[color] * partialAnswer.colorsAvailable[color]
 		return heuristicValue / len(partialAnswer.placedTrees)
 
+	def recentHeuristic(self, partialAnswer):
+		mostRecentRow, mostRecentColumn = partialAnswer.placedTrees[-1]
+		mostRecentColor = self.board[mostRecentRow][mostRecentColumn]
+		minFrequency = None
+		for color in self.colorFrequencies: #sorted in __init__
+			if color == mostRecentColor and (minFrequency is None or self.colorFrequencies[color] == minFrequency):
+				ret = self.colorFrequencies[color] + (len(partialAnswer.placedTrees) * len(self.board) * len(self.board))
+				ret *= -1
+				return ret
+			if partialAnswer.colorsAvailable[color] == self.treesPerColor:
+				if minFrequency is None:
+					minFrequency = self.colorFrequencies[color]
+				if minFrequency != self.colorFrequencies[color]:
+					return float('inf')
+		return float('inf')
+
 	def heuristic(self, partialAnswer):
-		return self.unsolvedHeuristic(partialAnswer) # Works better than color heuristic
+		# return self.unsolvedHeuristic(partialAnswer) # Works better than color heuristic
+		return self.recentHeuristic(partialAnswer)
 		# return False
 
 	def getActions(self, partialAnswer):
@@ -141,7 +159,7 @@ class ParkSolver(Solver):
 
 def main():
 	solver = ParkSolver("puzzles/parks/14")
-	solver.allSolve()
+	solver.allSolve(breadth=False, depth=False)
 
 
 if __name__ == "__main__":
